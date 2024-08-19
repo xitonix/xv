@@ -31,8 +31,8 @@ func main() {
 	key := app.Flag("key", "Encryption key.").
 		Envar("XV_KEY").
 		Short('k').
-		Required().
 		String()
+
 	dec := app.Flag("decrypt", "Decrypts input data.").Short('d').Bool()
 	raw := app.Flag("raw", "Operates in raw mode. Suitable to encrypt/decrypt non-textual files.").Short('r').Bool()
 	ver := app.Flag("version", "Displays the current version of the tool.").Short('v').Bool()
@@ -56,8 +56,8 @@ Examples:
 		return
 	}
 
-	if len(*key) < keySize {
-		log.Fatalf("Key must be at least %d bytes", keySize)
+	if key == nil || len(*key) < keySize {
+		log.Fatalf("Encryption key (--key|$XV_KEY) must be at least %d bytes", keySize)
 	}
 
 	if isInputFromPipe() {
