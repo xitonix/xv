@@ -7,7 +7,7 @@ A CLI tool to encode/decode data with standard command piping support.
 
 OR
 
-Download the binary from the release[]() page.
+Download the binary from the [release](https://github.com/xitonix/xv/releases) page.
 
 OR
 
