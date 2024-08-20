@@ -25,7 +25,8 @@ func setupDecrypt(app *kingpin.Application) {
 	cmd := &dec{
 		appName: app.Name,
 	}
-	kCmd := app.Command("dec", `Decrypts AES-256 encrypted data`).Alias("d").Action(cmd.run)
+	const cmdName = "dec"
+	kCmd := app.Command(cmdName, `Decrypts AES-256 encrypted data`).Alias("d").Action(cmd.run)
 	kCmd.Flag("encoder", "Specifies how the encrypted data was encoded. It MUST be the same encoder which was used for encryption").
 		Short('e').
 		Default(string(encoderBase64)).
@@ -37,9 +38,10 @@ func setupDecrypt(app *kingpin.Application) {
 
 Examples: 
 
- Plain Text: %s dec "encrypted text" OR echo "encrypted text" | %[1]s dec
-  Text File: cat encrypted.txt | %[1]s dec > decrypted.txt
-        Raw: cat encrypted.jpg | %[1]s dec -e raw > decrypted.jpg`, app.Name)).StringVar(&cmd.text)
+ %s %[2]s "encrypted text" 
+ echo "encrypted text" | %[1]s %[2]s
+ cat encrypted.txt | %[1]s %[2]s > decrypted.txt
+ cat encrypted.jpg | %[1]s %[2]s -e raw > decrypted.jpg`, app.Name, cmdName)).StringVar(&cmd.text)
 }
 
 func (c *dec) run(_ *kingpin.ParseContext) error {

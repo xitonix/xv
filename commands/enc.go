@@ -23,10 +23,11 @@ type enc struct {
 }
 
 func setupEncrypt(app *kingpin.Application) {
+	const cmdName = "enc"
 	cmd := &enc{
 		appName: app.Name,
 	}
-	kCmd := app.Command("enc", `Encrypts data using AES-256 algorithm`).Alias("e").Action(cmd.run)
+	kCmd := app.Command(cmdName, `Encrypts data using AES-256 algorithm (Default command if not specified)`).Alias("e").Default().Action(cmd.run)
 	kCmd.Flag("encoder", "Specifies how the encrypted data must be encoded. Same encoder must be used for decryption").
 		Short('e').
 		Default(string(encoderBase64)).
@@ -38,9 +39,12 @@ func setupEncrypt(app *kingpin.Application) {
 
 Examples: 
 
- Plain Text: %s enc "plain text" OR echo "plain text" | %[1]s enc
-  Text File: cat file.txt | %[1]s enc > enc.txt
-        Raw: cat file.jpg | %[1]s enc -e raw > enc.jpg`, app.Name)).StringVar(&cmd.text)
+ %s [%s] "plain text"
+ echo "plain text" | %[1]s [%[2]s]
+ %[1]s [%[2]s] "plain text"
+ echo "plain text" | %[1]s [%[2]s]
+ cat file.txt | %[1]s [%[2]s] > enc.txt
+ cat file.jpg | %[1]s [%[2]s] -e raw > enc.jpg`, app.Name, cmdName)).StringVar(&cmd.text)
 }
 
 func (c *enc) run(_ *kingpin.ParseContext) error {
