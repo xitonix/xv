@@ -1,5 +1,5 @@
 # xv
-A CLI tool to encode/decode data with standard command piping support.
+A CLI tool to encrypt & decrypt data using AES-256 algorithm with command piping support.
 
 ## Installation
 
