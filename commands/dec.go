@@ -35,7 +35,7 @@ func setupDecrypt(app *kingpin.Application) {
 		Default(string(encoderBase64)).
 		EnumVar(&cmd.encMode, string(encoderBase64), string(encoderHex), string(encoderRaw))
 
-	kCmd.Flag("checksum", "Prints the MD5 checksum of the decoded data (Enabled by default)").
+	kCmd.Flag("checksum", "Prints the checksum of the encrypted data (Enabled by default)").
 		Short('c').
 		Default("true").
 		BoolVar(&cmd.checksum)

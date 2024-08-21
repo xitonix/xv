@@ -36,7 +36,7 @@ func setupEncrypt(app *kingpin.Application) {
 		Default(string(encoderBase64)).
 		EnumVar(&cmd.encMode, string(encoderBase64), string(encoderHex), string(encoderRaw))
 
-	kCmd.Flag("verify", "Verifies the encrypted data (Enabled by default)").
+	kCmd.Flag("verify", "Verifies the encrypted data and prints the checksum (Enabled by default)").
 		Short('v').
 		Default("true").
 		BoolVar(&cmd.verify)
