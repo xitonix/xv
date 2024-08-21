@@ -63,5 +63,5 @@ echo "Base 64 encoded text of AES-256 encrypted data" | xv dec --key "encryption
 ```
 
 **Notes**
-> - `enc` command will be executed by default if not set explicitly.
-> - If encoder/decoder is not specified explicitly, `base 64` will be selected by default.
+- `enc` command will be executed by default if not set explicitly.
+- If encoder/decoder is not specified explicitly, `base 64` will be selected by default.
