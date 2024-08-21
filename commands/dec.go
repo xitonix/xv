@@ -83,7 +83,7 @@ func decrypt(reader io.Reader, key []byte, encMode encoder) error {
 
 	switch encMode {
 	case encoderBase64:
-		encrypted, err = base64.URLEncoding.DecodeString(string(encrypted))
+		encrypted, err = base64.StdEncoding.DecodeString(string(encrypted))
 	case encoderHex:
 		encrypted, err = hex.DecodeString(string(encrypted))
 	case encoderRaw:

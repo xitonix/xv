@@ -101,7 +101,7 @@ func encrypt(reader io.Reader, key []byte, encMode encoder) error {
 
 	switch encMode {
 	case encoderBase64:
-		_, err = os.Stdout.WriteString(base64.URLEncoding.EncodeToString(encrypted))
+		_, err = os.Stdout.WriteString(base64.StdEncoding.EncodeToString(encrypted))
 	case encoderHex:
 		_, err = os.Stdout.WriteString(hex.EncodeToString(encrypted))
 	case encoderRaw:
