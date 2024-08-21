@@ -33,7 +33,7 @@ func (c *initKey) run(_ *kingpin.ParseContext) error {
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return fmt.Errorf("Failed to get home directory: %w", err)
+		return fmt.Errorf("Failed to get home directory. %w", err)
 	}
 	path := filepath.Join(home, "."+c.appName)
 	if _, err = os.Stat(path); err == nil {
@@ -43,7 +43,7 @@ func (c *initKey) run(_ *kingpin.ParseContext) error {
 	}
 	f, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("Failed to create the key file %s: %w", path, err)
+		return fmt.Errorf("Failed to create the key file %s. %w", path, err)
 	}
 	defer func() {
 		if err = f.Close(); err != nil {
@@ -51,7 +51,7 @@ func (c *initKey) run(_ *kingpin.ParseContext) error {
 		}
 	}()
 	if _, err = f.WriteString(key); err != nil {
-		return fmt.Errorf("Failed to write key file %s: %w", path, err)
+		return fmt.Errorf("Failed to write key file %s. %w", path, err)
 	}
 	fmt.Printf("The key file %s has been created successfully", path)
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -15,10 +16,11 @@ import (
 )
 
 type dec struct {
-	encMode string
-	text    string
-	key     string
-	appName string
+	encMode  string
+	text     string
+	key      string
+	appName  string
+	checksum bool
 }
 
 func setupDecrypt(app *kingpin.Application) {
@@ -27,13 +29,21 @@ func setupDecrypt(app *kingpin.Application) {
 	}
 	const cmdName = "dec"
 	kCmd := app.Command(cmdName, `Decrypts AES-256 encrypted data`).Alias("d").Action(cmd.run)
+
 	kCmd.Flag("decoder", "The decoder to read the encrypted data (It must be the same value used for encryption)").
 		Short('d').
 		Default(string(encoderBase64)).
 		EnumVar(&cmd.encMode, string(encoderBase64), string(encoderHex), string(encoderRaw))
+
+	kCmd.Flag("checksum", "Prints the MD5 checksum of the decoded data (Enabled by default)").
+		Short('c').
+		Default("true").
+		BoolVar(&cmd.checksum)
+
 	kCmd.Flag("key", fmt.Sprintf("The key to be used for decryption (instead of the key file). It MUST be at least %d characters", keySize)).
 		Short('k').
 		StringVar(&cmd.key)
+
 	kCmd.Arg("text", fmt.Sprintf(`AES-256 encrypted text to decrypt (if not piped)
 
 Examples: 
@@ -60,67 +70,79 @@ func (c *dec) run(_ *kingpin.ParseContext) error {
 			return err
 		}
 	}
-	if isInputFromPipe() {
-		return decrypt(os.Stdin, key, encoder(c.encMode))
+	var (
+		input   io.Reader = os.Stdin
+		encMode           = encoder(c.encMode)
+	)
+	if !isPiped(os.Stdin) {
+		input = strings.NewReader(c.text)
 	}
-	input := strings.NewReader(c.text)
-	return decrypt(input, key, encoder(c.encMode))
+
+	decoded, decrypted, err := decrypt(input, key, encMode)
+	if err != nil {
+		return fmt.Errorf("Failed to decrypt data. %w", err)
+	}
+
+	if encMode == encoderRaw {
+		_, _ = os.Stdout.Write(decrypted)
+	} else {
+		_, _ = os.Stdout.WriteString(string(decrypted))
+	}
+	if c.checksum {
+		printOutput(fmt.Sprintf("%sMD5/%X %s", green, md5.Sum(decoded), ColourReset))
+	}
+	return nil
 }
 
-func decrypt(reader io.Reader, key []byte, encMode encoder) error {
+func decrypt(reader io.Reader, key []byte, encMode encoder) ([]byte, []byte, error) {
 	encrypted, err := io.ReadAll(reader)
 	if err != nil {
-		return fmt.Errorf("Failed to read the input: %w", err)
+		return nil, nil, fmt.Errorf("Failed to read the input. %w", err)
 	}
 
 	if len(bytes.TrimSpace(encrypted)) == 0 {
-		return nil
+		return nil, nil, nil
 	}
 
 	if len(key) < keySize {
-		return errKeyTooSmall
+		return nil, nil, errKeyTooSmall
 	}
 
+	var decoded []byte
 	switch encMode {
 	case encoderBase64:
-		encrypted, err = base64.StdEncoding.DecodeString(string(encrypted))
+		decoded, err = base64.StdEncoding.DecodeString(string(encrypted))
 	case encoderHex:
-		encrypted, err = hex.DecodeString(string(encrypted))
+		decoded, err = hex.DecodeString(string(encrypted))
 	case encoderRaw:
+		decoded = encrypted
 	default:
-		return fmt.Errorf("Unknown encoder %q", encMode)
+		return nil, nil, fmt.Errorf("Unknown decoder %q", encMode)
 	}
 
 	if err != nil {
-		return fmt.Errorf("Failed to decode data from %s: %w", encMode, err)
+		return nil, nil, fmt.Errorf("Failed to decode data from %s. %w", encMode, err)
 	}
 
 	c, err := aes.NewCipher(key[:keySize])
 	if err != nil {
-		return fmt.Errorf("Failed to create cipher: %w", err)
+		return nil, nil, fmt.Errorf("Failed to create cipher. %w", err)
 	}
 
 	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		return fmt.Errorf("Failed to create GCM: %w", err)
+		return nil, nil, fmt.Errorf("Failed to create GCM. %w", err)
 	}
 	nonceSize := gcm.NonceSize()
-	if len(encrypted) < nonceSize {
-		return fmt.Errorf("Invalid input encrypted data")
+	if len(decoded) < nonceSize {
+		return nil, nil, fmt.Errorf("Invalid input encrypted data")
 	}
 
-	nonce, ciphertext := encrypted[:nonceSize], encrypted[nonceSize:]
+	nonce, ciphertext := decoded[:nonceSize], decoded[nonceSize:]
 	decrypted, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		return fmt.Errorf("Failed to decrypt input: %w", err)
+		return nil, nil, fmt.Errorf("Failed to decrypt input. %w", err)
 	}
-	if encMode == encoderRaw {
-		_, err = os.Stdout.Write(decrypted)
-	} else {
-		_, err = os.Stdout.WriteString(string(decrypted))
-	}
-	if err != nil {
-		return fmt.Errorf("Failed to write decrypted data: %w", err)
-	}
-	return nil
+
+	return decoded, decrypted, nil
 }

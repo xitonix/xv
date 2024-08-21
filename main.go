@@ -28,9 +28,7 @@ func main() {
 	commands.SetupAll(app)
 
 	log.SetFlags(0)
-	_, err := app.Parse(os.Args[1:])
-	if err != nil {
-		log.Fatal(err)
+	if _, err := app.Parse(os.Args[1:]); err != nil {
+		_, _ = os.Stderr.WriteString(fmt.Sprintf("\n%s %s%s%s", commands.EmojiFail, commands.ColourRed, err, commands.ColourReset))
 	}
-
 }
