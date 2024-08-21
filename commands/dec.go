@@ -27,21 +27,21 @@ func setupDecrypt(app *kingpin.Application) {
 	}
 	const cmdName = "dec"
 	kCmd := app.Command(cmdName, `Decrypts AES-256 encrypted data`).Alias("d").Action(cmd.run)
-	kCmd.Flag("encoder", "Specifies how the encrypted data was encoded. It MUST be the same encoder which was used for encryption").
-		Short('e').
+	kCmd.Flag("decoder", "The decoder to read the encrypted data (It must be the same value used for encryption)").
+		Short('d').
 		Default(string(encoderBase64)).
 		EnumVar(&cmd.encMode, string(encoderBase64), string(encoderHex), string(encoderRaw))
-	kCmd.Flag("key", fmt.Sprintf("The key to be used for decryption (instead of the key file). It MUST be at least %d characters.", keySize)).
+	kCmd.Flag("key", fmt.Sprintf("The key to be used for decryption (instead of the key file). It MUST be at least %d characters", keySize)).
 		Short('k').
 		StringVar(&cmd.key)
-	kCmd.Arg("text", fmt.Sprintf(`AES-256 encrypted text to decrypt (if not piped).
+	kCmd.Arg("text", fmt.Sprintf(`AES-256 encrypted text to decrypt (if not piped)
 
 Examples: 
 
  %s %[2]s "encrypted text" 
  echo "encrypted text" | %[1]s %[2]s
  cat encrypted.txt | %[1]s %[2]s > decrypted.txt
- cat encrypted.jpg | %[1]s %[2]s -e raw > decrypted.jpg`, app.Name, cmdName)).StringVar(&cmd.text)
+ cat encrypted.jpg | %[1]s %[2]s -d raw > decrypted.jpg`, app.Name, cmdName)).StringVar(&cmd.text)
 }
 
 func (c *dec) run(_ *kingpin.ParseContext) error {

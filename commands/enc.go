@@ -28,14 +28,14 @@ func setupEncrypt(app *kingpin.Application) {
 		appName: app.Name,
 	}
 	kCmd := app.Command(cmdName, `Encrypts data using AES-256 algorithm (Default command if not specified)`).Alias("e").Default().Action(cmd.run)
-	kCmd.Flag("encoder", "Specifies how the encrypted data must be encoded. Same encoder must be used for decryption").
+	kCmd.Flag("encoder", "Specifies how the encrypted data must be encoded. Same decoder must be used for decryption").
 		Short('e').
 		Default(string(encoderBase64)).
 		EnumVar(&cmd.encMode, string(encoderBase64), string(encoderHex), string(encoderRaw))
-	kCmd.Flag("key", fmt.Sprintf("The key to be used for encryption (instead of the key file). It MUST be at least %d characters.", keySize)).
+	kCmd.Flag("key", fmt.Sprintf("The key to be used for encryption (instead of the key file). It MUST be at least %d characters", keySize)).
 		Short('k').
 		StringVar(&cmd.key)
-	kCmd.Arg("text", fmt.Sprintf(`The text to encrypt (if not piped).
+	kCmd.Arg("text", fmt.Sprintf(`The text to encrypt (if not piped)
 
 Examples: 
 

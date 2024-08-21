@@ -29,6 +29,7 @@ Encryption using the key file
 xv [enc] "plain text"
 echo "plain text" | xv [enc]
 xv [enc] "plain text"
+xv [enc] "plain text" --encoder hex
 echo "plain text" | xv [enc]
 cat file.txt | xv [enc] > enc.txt
 cat file.jpg | xv [enc] -e raw > enc.jpg
@@ -41,20 +42,26 @@ xv [enc] "plain text" --key "encryption key of at least 32 characters"
 echo "plain text" | xv [enc] --key "encryption key of at least 32 characters"
 ```
 
->NOTE: `enc` command will be executed by default if not set explicitly.
-
 Decryption using the key file
 
 ```shell
-xv dec "encrypted text"
-echo "encrypted text" | xv dec
-cat encrypted.txt | xv dec > decrypted.txt
-cat encrypted.jpg | xv dec -e raw > decrypted.jpg
+
+xv dec "Base 64 encoded text of AES-256 encrypted data"
+echo "Base 64 encoded text of AES-256 encrypted data" | xv dec
+
+echo "Hex encoded text of AES-256 encrypted data" | xv dec --decoder hex
+
+cat base_64_encoded_encrypted.txt | xv dec > decrypted.txt
+cat raw_encrypted.jpg | xv dec -d raw > decrypted.jpg
 ```
 
 Decryption using a key
 
 ```shell
-xv dec "encrypted text" --key "encryption key of at least 32 characters"
-echo "encrypted text" | xv dec --key "encryption key of at least 32 characters"
+xv dec "Base 64 encoded text of AES-256 encrypted data" --key "encryption key of at least 32 characters"
+echo "Base 64 encoded text of AES-256 encrypted data" | xv dec --key "encryption key of at least 32 characters"
 ```
+
+**Notes**
+> - `enc` command will be executed by default if not set explicitly.
+> - If encoder/decoder is not specified explicitly, `base 64` will be selected by default.
