@@ -136,7 +136,7 @@ func encrypt(reader io.Reader, key []byte, encMode encoder, verify bool) error {
 			return fmt.Errorf("Failed to verify data. %w", err)
 		} else {
 			if bytes.Equal(value, decrypted) {
-				printOutput(fmt.Sprintf("%s %sMD5/%X %s", emojiSuccess, green, md5.Sum(encrypted), ColourReset))
+				printOutput(fmt.Sprintf("%s %sMD5/%X %s", emojiSuccess, colourGreen, md5.Sum(encrypted), ColourReset))
 			} else {
 				printOutput(fmt.Sprintf("%s %sVERIFICATION FAILED %s", EmojiFail, ColourRed, ColourReset))
 			}

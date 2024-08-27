@@ -17,7 +17,9 @@ const (
 const (
 	EmojiFail    = "\u274C"
 	emojiSuccess = "\u2705"
-	green        = "\u001B[32m"
+	emojiWarn    = "\u26a0\ufe0f"
+	colourGreen  = "\u001B[32m"
+	colourYellow = "\u001B[33m"
 	ColourRed    = "\u001B[31m"
 	ColourReset  = "\u001B[0m"
 )
@@ -33,7 +35,7 @@ const (
 var errKeyTooSmall = fmt.Errorf("The encryption key must be at least %d bytes", keySize)
 
 func SetupAll(app *kingpin.Application) {
-	setupInitKey(app)
+	setupKey(app)
 	setupEncrypt(app)
 	setupDecrypt(app)
 }

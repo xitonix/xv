@@ -89,7 +89,7 @@ func (c *dec) run(_ *kingpin.ParseContext) error {
 		_, _ = os.Stdout.WriteString(string(decrypted))
 	}
 	if c.checksum {
-		printOutput(fmt.Sprintf("%sMD5/%X %s", green, md5.Sum(decoded), ColourReset))
+		printOutput(fmt.Sprintf("%sMD5/%X %s", colourGreen, md5.Sum(decoded), ColourReset))
 	}
 	return nil
 }
