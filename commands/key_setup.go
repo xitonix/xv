@@ -34,7 +34,7 @@ func setupKey(app *kingpin.Application) {
 
 func (c *initKey) run(_ *kingpin.ParseContext) error {
 	fmt.Printf("Encryption key (Minimum length: %d, Press ⏎ to auto generate): ", keySize)
-	pass, err := term.ReadPassword(syscall.Stdin)
+	pass, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		return err
 	}
