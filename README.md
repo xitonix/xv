@@ -18,7 +18,7 @@ Clone the repo and run `install.sh`
 
 ### Setup key file (Optional)
 ```shell
-xv init <Encryption Key> # Key MUST be at least 32 characters. A random key will be generated if not specified
+xv init # Key MUST be at least 32 characters. A random key will be generated if not specified
 ```
 
 #### Examples
