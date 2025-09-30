@@ -1,13 +1,13 @@
 #!/bin/bash
 
-VERSION=$(git describe --tags --abbrev=0)
+VERSION=$(git tag --sort=-version:refname | head -n1)
 TARGET=$GOBIN
 BINARY="xv"
 if [[ x"${GOBIN}" == "x"  ]]; then
   TARGET='/usr/local/bin'
 fi
 echo "Installing $BINARY $VERSION into $TARGET"
-FILE="$BINARY-darwin-$VERSION.tar.gz"
+FILE="$BINARY-darwin-$(go env GOARCH)-$VERSION.tar.gz"
 URL="https://github.com/xitonix/$BINARY/releases/download/$VERSION/$FILE"
 echo "Downloading $URL"
 curl -sL "$URL" > "$FILE"
