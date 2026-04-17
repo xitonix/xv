@@ -16,31 +16,42 @@ import (
 )
 
 type dec struct {
-	encMode  string
-	text     string
-	key      string
-	appName  string
-	checksum bool
+	encMode string
+	text    string
+	key     string
+	appName string
+	verify  bool
 }
 
 func setupDecrypt(app *kingpin.Application) {
 	cmd := &dec{
 		appName: app.Name,
 	}
+
 	const cmdName = "dec"
-	kCmd := app.Command(cmdName, `Decrypts AES-256 encrypted data`).Alias("d").Action(cmd.run)
+	kCmd := app.Command(cmdName, "Decrypt AES-256 encrypted data").
+		Alias("d").
+		Action(cmd.run)
 
-	kCmd.Flag("decoder", "The decoder to read the encrypted data (It must be the same value used for encryption)").
-		Short('d').
+	encodings := []string{string(encoderBase64), string(encoderHex), string(encoderRaw)}
+
+	kCmd.Flag(
+		"encoding",
+		fmt.Sprintf("Encoding of the input data. Must match the encoding used during encryption (%s)", strings.Join(encodings, ","))).
+		Short('e').
 		Default(string(encoderBase64)).
-		EnumVar(&cmd.encMode, string(encoderBase64), string(encoderHex), string(encoderRaw))
+		EnumVar(&cmd.encMode, encodings...)
 
-	kCmd.Flag("checksum", "Prints the checksum of the encrypted data (Enabled by default)").
-		Short('c').
+	kCmd.Flag(
+		"verify",
+		"Whether to verify and print the checksum of the input data (enabled by default)").
+		Short('v').
 		Default("true").
-		BoolVar(&cmd.checksum)
+		BoolVar(&cmd.verify)
 
-	kCmd.Flag("key", fmt.Sprintf("The key to be used for decryption (instead of the key file). It MUST be at least %d characters", keySize)).
+	kCmd.Flag(
+		"key",
+		fmt.Sprintf("Decryption key (overrides key file). Must be at least %d characters", keySize)).
 		Short('k').
 		StringVar(&cmd.key)
 
@@ -88,7 +99,7 @@ func (c *dec) run(_ *kingpin.ParseContext) error {
 	} else {
 		_, _ = os.Stdout.WriteString(string(decrypted))
 	}
-	if c.checksum {
+	if c.verify {
 		printOutput(fmt.Sprintf("%sMD5/%X %s", colourGreen, md5.Sum(decoded), ColourReset))
 	}
 	return nil

@@ -29,19 +29,36 @@ func setupEncrypt(app *kingpin.Application) {
 	cmd := &enc{
 		appName: app.Name,
 	}
-	kCmd := app.Command(cmdName, `Encrypts data using AES-256 algorithm (Default command if not specified)`).Alias("e").Default().Action(cmd.run)
+	kCmd := app.Command(
+		cmdName,
+		"Encrypt data using the AES-256 algorithm (default command)",
+	).
+		Alias("e").
+		Default().
+		Action(cmd.run)
 
-	kCmd.Flag("encoder", "Specifies how the encrypted data must be encoded. Same decoder must be used for decryption").
+	encodings := []string{string(encoderBase64), string(encoderHex), string(encoderRaw)}
+
+	kCmd.Flag(
+		"encoding",
+		fmt.Sprintf("Encoding of the output data. Must match the encoding you will for decryption (%s)", strings.Join(encodings, ",")),
+	).
 		Short('e').
 		Default(string(encoderBase64)).
-		EnumVar(&cmd.encMode, string(encoderBase64), string(encoderHex), string(encoderRaw))
+		EnumVar(&cmd.encMode, encodings...)
 
-	kCmd.Flag("verify", "Verifies the encrypted data and prints the checksum (Enabled by default)").
+	kCmd.Flag(
+		"verify",
+		"Whether to verify the encrypted output and print its checksum (enabled by default)",
+	).
 		Short('v').
 		Default("true").
 		BoolVar(&cmd.verify)
 
-	kCmd.Flag("key", fmt.Sprintf("The key to be used for encryption (instead of the key file). It MUST be at least %d characters", keySize)).
+	kCmd.Flag(
+		"key",
+		fmt.Sprintf("Encryption key (overrides key file). Must be at least %d characters", keySize),
+	).
 		Short('k').
 		StringVar(&cmd.key)
 
@@ -134,12 +151,11 @@ func encrypt(reader io.Reader, key []byte, encMode encoder, verify bool) error {
 		_, decrypted, err := decrypt(encBuffer, key, encMode)
 		if err != nil {
 			return fmt.Errorf("Failed to verify data. %w", err)
+		}
+		if bytes.Equal(value, decrypted) {
+			printOutput(fmt.Sprintf("%s %sMD5/%X %s", emojiSuccess, colourGreen, md5.Sum(encrypted), ColourReset))
 		} else {
-			if bytes.Equal(value, decrypted) {
-				printOutput(fmt.Sprintf("%s %sMD5/%X %s", emojiSuccess, colourGreen, md5.Sum(encrypted), ColourReset))
-			} else {
-				printOutput(fmt.Sprintf("%s %sVERIFICATION FAILED %s", EmojiFail, ColourRed, ColourReset))
-			}
+			printOutput(fmt.Sprintf("%s %sVERIFICATION FAILED %s", EmojiFail, ColourRed, ColourReset))
 		}
 	}
 	return nil
