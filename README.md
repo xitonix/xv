@@ -29,7 +29,7 @@ Encryption using the key file
 xv [enc] "plain text"
 echo "plain text" | xv [enc]
 xv [enc] "plain text"
-xv [enc] "plain text" --encoder hex
+xv [enc] "plain text" --encoding hex
 echo "plain text" | xv [enc]
 cat file.txt | xv [enc] > enc.txt
 cat file.jpg | xv [enc] -e raw > enc.jpg
@@ -49,7 +49,7 @@ Decryption using the key file
 xv dec "Base 64 encoded text of AES-256 encrypted data"
 echo "Base 64 encoded text of AES-256 encrypted data" | xv dec
 
-echo "Hex encoded text of AES-256 encrypted data" | xv dec --decoder hex
+echo "Hex encoded text of AES-256 encrypted data" | xv dec --encoding hex
 
 cat base_64_encoded_encrypted.txt | xv dec > decrypted.txt
 cat raw_encrypted.jpg | xv dec -d raw > decrypted.jpg
@@ -64,4 +64,4 @@ echo "Base 64 encoded text of AES-256 encrypted data" | xv dec --key "encryption
 
 **Notes**
 - `enc` command will be executed by default if not set explicitly.
-- If encoder/decoder is not specified explicitly, `base 64` will be selected by default.
+- If encoding is not specified explicitly, `base 64` will be selected by default.
